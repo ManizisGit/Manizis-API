@@ -5,12 +5,32 @@ const app = express();
 app.use(express.json());
 
 
-// Verificação da API
+// Token de segurança
+const API_TOKEN = process.env.API_TOKEN;
+
+
+// Verificação da API (pública)
 app.get("/", (req, res) => {
     res.json({
         status: "online",
         mensagem: "API Manizis funcionando!"
     });
+});
+
+
+// Proteção das rotas API
+app.use("/api", (req, res, next) => {
+
+    const token = req.headers.authorization;
+
+    if (token !== `Bearer ${API_TOKEN}`) {
+        return res.status(401).json({
+            erro: "Não autorizado"
+        });
+    }
+
+    next();
+
 });
 
 
@@ -59,7 +79,6 @@ app.post("/api/caixa", (req, res) => {
     });
 
 });
-
 
 
 // Porta para Render
