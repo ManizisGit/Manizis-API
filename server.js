@@ -44,6 +44,24 @@ app.post("/api/clientes", (req, res) => {
 });
 
 
+// Receber Caixa via AppSheet
+app.post("/api/caixa", (req, res) => {
+
+    const caixa = req.body;
+
+    console.log("Novo lançamento Caixa:");
+    console.log(caixa);
+
+    res.json({
+        sucesso: true,
+        mensagem: "Caixa recebido pela API Manizis",
+        dados: caixa
+    });
+
+});
+
+
+
 // Porta para Render
 const PORT = process.env.PORT || 3000;
 
