@@ -81,6 +81,20 @@ app.post("/api/caixa", (req, res) => {
 });
 
 
+// Leads Imobibrasil
+app.post("/api/leads/imobibrasil", (req, res) => {
+
+    console.log("========== NOVO LEAD ==========");
+    console.log(req.headers);
+    console.log(req.body);
+
+    res.json({
+        sucesso: true
+    });
+
+});
+
+
 // Porta para Render
 const PORT = process.env.PORT || 3000;
 
