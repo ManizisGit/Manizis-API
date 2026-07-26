@@ -1,5 +1,8 @@
 const express = require("express");
 
+const fetch = require("node-fetch");
+
+
 const app = express();
 
 app.use(express.json());
@@ -82,15 +85,89 @@ app.post("/api/caixa", (req, res) => {
 
 
 // Leads Imobibrasil
-app.post("/api/leads/imobibrasil", (req, res) => {
+app.post("/api/leads/imobibrasil", async (req, res) => {
 
-    console.log("========== NOVO LEAD ==========");
-    console.log(req.headers);
-    console.log(req.body);
+    try {
 
-    res.json({
-        sucesso: true
-    });
+        console.log("========== NOVO LEAD ==========");
+        console.log(req.body);
+
+
+        const lead = req.body;
+
+
+        const resposta = await fetch(
+            "https://api.appsheet.com/api/v2/apps/d286d41e-2dff-4a2e-9138-cf62f49539ae/tables/Lista_Leads/Action",
+            {
+                method: "POST",
+                headers: {
+                    "ApplicationAccessKey": process.env.APPSHEET_KEY,
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify({
+
+                    Action: "Add",
+
+                    Properties: {
+                        Locale: "pt-BR"
+                    },
+
+                    Rows: [
+                        {
+                            Ref: Date.now().toString(),
+
+                            Nome: lead.Nome,
+                            Email: lead.Email,
+                            Telefone1: lead.Telefone,
+
+                            Mensagem: lead.Mensagem,
+
+                            Origem: "Imobibrasil",
+
+                            Canal: lead.Canal,
+
+                            Finalidade: lead.Finalidade,
+
+                            ImovelSite: lead.ImovelSite,
+
+                            ValorImovel: lead.ValorImovel,
+
+                            Status: "Novo",
+
+                            DataCadastro: new Date().toISOString()
+                        }
+                    ]
+
+                })
+            }
+        );
+
+
+        const retorno = await resposta.json();
+
+
+        console.log("Resposta AppSheet:");
+        console.log(retorno);
+
+
+        res.json({
+            sucesso: true,
+            appsheet: retorno
+        });
+
+
+    } catch (erro) {
+
+        console.log("ERRO:");
+        console.log(erro);
+
+        res.status(500).json({
+            sucesso: false,
+            erro: erro.message
+        });
+
+    }
 
 });
 
