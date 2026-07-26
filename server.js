@@ -95,27 +95,7 @@ app.post("/api/leads/imobibrasil", (req, res) => {
 });
 
 
-// ===========================
-// // LEADS - RECEBER DO APPSHEET
-// ===========================
-app.post("/api/leads", (req, res) => {
 
-    console.log("========== NOVO LEAD ==========");
-    console.log("Data/Hora:", new Date().toLocaleString("pt-BR"));
-
-    console.log("Headers:");
-    console.log(req.headers);
-
-    console.log("Body:");
-    console.log(req.body);
-
-    res.json({
-        sucesso: true,
-        mensagem: "Lead recebido com sucesso!",
-        lead: req.body
-    });
-
-});
 
 
 // Porta para Render
