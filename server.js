@@ -129,7 +129,7 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
                             Finalidade: lead.Finalidade || "",
 
                             ImovelSite: lead.ImovelSite || "",
-                            LinkImovel: lead.ImovelSite
+                            LinkSite: lead.ImovelSite
                                 ? `https://valdir-imoveis.com/imovel/${lead.ImovelSite}`
                                 : "",
                             
