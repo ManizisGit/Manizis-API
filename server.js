@@ -133,7 +133,7 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
                             Status: "Novo",
 
-                            DataCadastro: new Date().toISOString()
+                            DataCadastro: new Date().toISOString().slice(0, 19)
                         }
                     ]
 
