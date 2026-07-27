@@ -129,7 +129,23 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
                             Finalidade: lead.Finalidade || "",
 
                             ImovelSite: lead.ImovelSite || "",
-
+                            LinkImovel: lead.ImovelSite
+                                ? `https://valdir-imoveis.com/imovel/${lead.ImovelSite}`
+                                : "",
+                            
+                            EnderecoImovel: [
+                                lead.Logradouro,
+                                lead.Numero,
+                                lead.Complemento,
+                                lead.Bairro,
+                                lead.Cidade
+                                
+                            ]
+                                .filter(valor => valor && valor.trim() !== "")
+                                .join(", ") 
+                                + (lead.UF ? " - " + lead.UF : ""), 
+                            
+                            
                             ValorImovel: lead.ValorImovel || "",
 
                             Status: "Novo",
