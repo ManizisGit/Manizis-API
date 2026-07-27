@@ -150,7 +150,7 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
                             Status: "Novo",
 
-                            Responsavel: ""
+                            Responsavel: "",
 
                             // DataCadastro removida temporariamente
                         }
@@ -160,7 +160,19 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
             }
         );
 
-        const retorno = await resposta.json();
+
+
+
+        const textoRetorno = await resposta.text();
+        let retorno;
+        
+        try {
+            retorno = JSON.parse(textoRetorno);
+        } catch {
+            retorno = textoRetorno;
+        }
+
+        
 
         console.log("Resposta AppSheet:");
         console.log(retorno);
