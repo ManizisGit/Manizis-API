@@ -111,11 +111,10 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
                     Rows: [
                         {
-                            Ref: Date.now().toString(),
-
+                           
                             Nome: lead.Nome || "",
                             Email: lead.Email || "",
-                            Telefone1: lead.Telefone || "",
+                            Telefone1: lead.Telefone1 || "",
 
                             RG: lead.RG || "",
                             CPF: lead.CPF || "",
@@ -123,7 +122,7 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
                             Mensagem: lead.Mensagem || "",
 
-                            Origem: "Imobibrasil",
+                            Origem: lead.Origem,
 
                             Canal: lead.Canal || "",
 
