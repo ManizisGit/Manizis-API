@@ -90,9 +90,7 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
         console.log("========== NOVO LEAD ==========");
         console.log(req.body);
 
-
         const lead = req.body;
-
 
         const resposta = await fetch(
             "https://api.appsheet.com/api/v2/apps/d286d41e-2dff-4a2e-9138-cf62f49539ae/tables/Lista_Leads/Action",
@@ -115,25 +113,31 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
                         {
                             Ref: Date.now().toString(),
 
-                            Nome: lead.Nome,
-                            Email: lead.Email,
-                            Telefone1: lead.Telefone,
+                            Nome: lead.Nome || "",
+                            Email: lead.Email || "",
+                            Telefone1: lead.Telefone || "",
 
-                            Mensagem: lead.Mensagem,
+                            RG: lead.RG || "",
+                            CPF: lead.CPF || "",
+                            CNPJ: lead.CNPJ || "",
+
+                            Mensagem: lead.Mensagem || "",
 
                             Origem: "Imobibrasil",
 
-                            Canal: lead.Canal,
+                            Canal: lead.Canal || "",
 
-                            Finalidade: lead.Finalidade,
+                            Finalidade: lead.Finalidade || "",
 
-                            ImovelSite: lead.ImovelSite,
+                            ImovelSite: lead.ImovelSite || "",
 
-                            ValorImovel: lead.ValorImovel,
+                            ValorImovel: lead.ValorImovel || "",
 
                             Status: "Novo",
 
-                            DataCadastro: new Date().toISOString().slice(0, 19)
+                            Responsavel: ""
+
+                            // DataCadastro removida temporariamente
                         }
                     ]
 
@@ -141,19 +145,15 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
             }
         );
 
-
         const retorno = await resposta.json();
-
 
         console.log("Resposta AppSheet:");
         console.log(retorno);
 
-
         res.json({
-            sucesso: true,
+            sucesso: resposta.ok,
             appsheet: retorno
         });
-
 
     } catch (erro) {
 
@@ -168,7 +168,6 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
     }
 
 });
-
 
 
 
