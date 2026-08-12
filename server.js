@@ -278,22 +278,23 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
 
         console.log("");
-        console.log("Resultado da busca:");
-        console.log(resultadoBusca);
+console.log("Resultado da busca:");
+console.log(resultadoBusca);
 
+// =================================================
+// VERIFICAR SE ENCONTROU
+// =================================================
 
-        // =================================================
-        // VERIFICAR SE ENCONTROU
-        // =================================================
-
-    const linhasEncontradas =
+const linhasEncontradas =
     resultadoBusca &&
     Array.isArray(resultadoBusca.Rows)
         ? resultadoBusca.Rows
         : [];
 
 const leadDuplicado = linhasEncontradas.some(
-    linha => String(linha.ChaveLead || "").trim() === chaveLead
+    linha =>
+        String(linha.ChaveLead || "").trim() ===
+        String(chaveLead || "").trim()
 );
 
 if (respostaBusca.ok && leadDuplicado) {
@@ -315,7 +316,6 @@ if (respostaBusca.ok && leadDuplicado) {
         chaveLead: chaveLead
 
     });
-
 }
 
 
