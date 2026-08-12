@@ -291,19 +291,92 @@ const linhasEncontradas =
         ? resultadoBusca.Rows
         : [];
 
-const leadDuplicado = linhasEncontradas.some(
-    linha =>
-        String(linha.ChaveLead || "").trim() ===
-        String(chaveLead || "").trim()
-);
+// =================================================
+// DIAGNÓSTICO DA DUPLICIDADE
+// =================================================
 
-if (respostaBusca.ok && leadDuplicado) {
+console.log("");
+console.log("==========================================");
+console.log("RESULTADO DA DUPLICIDADE");
+console.log("Chave procurada:", chaveLead);
+console.log("HTTP AppSheet:", respostaBusca.status);
+console.log("Registros encontrados:", linhasEncontradas.length);
+
+if (linhasEncontradas.length > 0) {
+
+    console.log(
+        "IdLead encontrado:",
+        linhasEncontradas[0].IdLead
+    );
+
+    console.log(
+        "Chave encontrada:",
+        linhasEncontradas[0].ChaveLead
+    );
+
+    console.log(
+        "Telefone encontrado:",
+        linhasEncontradas[0].Telefone1
+    );
+
+    console.log(
+        "Imóvel encontrado:",
+        linhasEncontradas[0].ImovelSite
+    );
+
+}
+
+console.log("==========================================");        
+
+
+        
+// =================================================
+// SE A BUSCA FALHOU → NÃO CRIAR
+// =================================================
+
+if (!respostaBusca.ok) {
+
+    console.log("");
+    console.log("==========================================");
+    console.log("❌ ERRO AO CONSULTAR DUPLICIDADE");
+    console.log("==========================================");
+
+    return res.status(502).json({
+
+        sucesso: false,
+
+        erro: "Não foi possível consultar duplicidade no AppSheet.",
+
+        chaveLead: chaveLead,
+
+        appsheet: resultadoBusca
+
+    });
+
+}
+
+// =================================================
+// SE ENCONTROU QUALQUER LINHA → DUPLICADO
+// =================================================
+
+if (linhasEncontradas.length > 0) {
 
     console.log("");
     console.log("==========================================");
     console.log("⚠️ LEAD DUPLICADO - NÃO SERÁ CRIADO");
     console.log("==========================================");
+
     console.log("Chave:", chaveLead);
+
+    console.log(
+        "Registro existente:",
+        linhasEncontradas[0].IdLead || ""
+    );
+
+    console.log(
+        "Quantidade encontrada:",
+        linhasEncontradas.length
+    );
 
     return res.json({
 
@@ -313,16 +386,27 @@ if (respostaBusca.ok && leadDuplicado) {
 
         mensagem: "Lead duplicado. Registro não criado.",
 
-        chaveLead: chaveLead
+        chaveLead: chaveLead,
+
+        idLeadExistente:
+            linhasEncontradas[0].IdLead || ""
 
     });
+
 }
 
+
+
+        
 
         // =================================================
         // SE NÃO ENCONTROU → CRIAR
         // =================================================
 
+
+
+
+        
         console.log("");
         console.log("==========================================");
         console.log("✅ LEAD NOVO - CRIANDO NO APPSHEET");
