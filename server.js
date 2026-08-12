@@ -286,33 +286,37 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
         // VERIFICAR SE ENCONTROU
         // =================================================
 
-        if (
-            respostaBusca.ok &&
-            resultadoBusca &&
-            resultadoBusca.Rows &&
-            resultadoBusca.Rows.length > 0
-        ) {
+    const linhasEncontradas =
+    resultadoBusca &&
+    Array.isArray(resultadoBusca.Rows)
+        ? resultadoBusca.Rows
+        : [];
 
-            console.log("");
-            console.log("==========================================");
-            console.log("⚠️ LEAD DUPLICADO - NÃO SERÁ CRIADO");
-            console.log("==========================================");
-            console.log("Chave:", chaveLead);
+const leadDuplicado = linhasEncontradas.some(
+    linha => String(linha.ChaveLead || "").trim() === chaveLead
+);
 
+if (respostaBusca.ok && leadDuplicado) {
 
-            return res.json({
+    console.log("");
+    console.log("==========================================");
+    console.log("⚠️ LEAD DUPLICADO - NÃO SERÁ CRIADO");
+    console.log("==========================================");
+    console.log("Chave:", chaveLead);
 
-                sucesso: true,
+    return res.json({
 
-                duplicado: true,
+        sucesso: true,
 
-                mensagem: "Lead duplicado. Registro não criado.",
+        duplicado: true,
 
-                chaveLead: chaveLead
+        mensagem: "Lead duplicado. Registro não criado.",
 
-            });
+        chaveLead: chaveLead
 
-        }
+    });
+
+}
 
 
         // =================================================
