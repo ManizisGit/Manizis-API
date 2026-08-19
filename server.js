@@ -4,6 +4,16 @@ const app = express();
 
 app.use(express.json());
 
+
+// =====================================================
+// BLOQUEIO DE DUPLICIDADE EM MEMÓRIA
+// =====================================================
+
+const leadsProcessando = new Map();
+
+const TEMPO_BLOQUEIO = 60000; // 60 segundos
+
+
 // Token de segurança
 const API_TOKEN = process.env.API_TOKEN;
 
@@ -221,9 +231,65 @@ app.post("/api/leads/imobibrasil", async (req, res) => {
 
         const chaveLead = gerarChaveLead(lead);
 
+// =================================================
+// BLOQUEIO IMEDIATO CONTRA WEBHOOK DUPLICADO
+// =================================================
+
+if (leadsProcessando.has(chaveLead)) {
+
+    console.log("");
+    console.log("==========================================");
+    console.log("⚠️ WEBHOOK DUPLICADO BLOQUEADO");
+    console.log("==========================================");
+
+    console.log("Chave:", chaveLead);
+    console.log("Motivo: lead já está sendo processado");
+
+    return res.json({
+
+        sucesso: true,
+
+        duplicado: true,
+
+        bloqueado: true,
+
+        mensagem: "Lead duplicado recebido durante processamento.",
+
+        chaveLead: chaveLead
+
+    });
+
+}
+
+
+// =================================================
+// MARCAR COMO PROCESSANDO
+// =================================================
+
+leadsProcessando.set(chaveLead, Date.now());
+
+console.log("");
+console.log("🔒 Lead bloqueado para processamento:");
+console.log(chaveLead);
+
+
+// =================================================
+// SEGURANÇA: EXPIRAR BLOQUEIO APÓS 60 SEGUNDOS
+// =================================================
+
+setTimeout(() => {
+
+    if (leadsProcessando.has(chaveLead)) {
+
+        leadsProcessando.delete(chaveLead);
+
         console.log("");
-        console.log("ChaveLead gerada:");
+        console.log("⏱️ Bloqueio expirado:");
         console.log(chaveLead);
+
+    }
+
+}, TEMPO_BLOQUEIO);
 
 
         // =================================================
@@ -502,66 +568,82 @@ if (linhasEncontradas.length > 0) {
         );
 
 
-        // =================================================
-        // RESPOSTA DO APPSHEET
-        // =================================================
+// =================================================
+// RESPOSTA DO APPSHEET
+// =================================================
 
-        const textoRetorno = await resposta.text();
+const textoRetorno = await resposta.text();
 
-        let retorno;
+let retorno;
 
-        try {
+try {
 
-            retorno = JSON.parse(textoRetorno);
+    retorno = JSON.parse(textoRetorno);
 
-        } catch {
+} catch {
 
-            retorno = textoRetorno;
+    retorno = textoRetorno;
 
-        }
+}
 
+
+// =================================================
+// LIBERAR BLOQUEIO
+// =================================================
+
+leadsProcessando.delete(chaveLead);
+
+console.log("");
+console.log("🔓 Lead liberado:");
+console.log(chaveLead);
+
+
+// =================================================
+// RESPOSTA PARA IMOBIBRASIL
+// =================================================
+
+res.json({
+
+    sucesso: resposta.ok,
+
+    duplicado: false,
+
+    chaveLead: chaveLead,
+
+    appsheet: retorno
+
+});
+
+
+} catch (erro) {
+
+    console.log("");
+    console.log("==========================================");
+    console.log("❌ ERRO NA API");
+    console.log("==========================================");
+
+    console.log(erro);
+
+    // Liberar bloqueio em caso de erro
+    if (typeof chaveLead !== "undefined") {
+
+        leadsProcessando.delete(chaveLead);
 
         console.log("");
-        console.log("Resposta AppSheet:");
-        console.log(retorno);
-
-
-        // =================================================
-        // RESPOSTA PARA IMOBIBRASIL
-        // =================================================
-
-        res.json({
-
-            sucesso: resposta.ok,
-
-            duplicado: false,
-
-            chaveLead: chaveLead,
-
-            appsheet: retorno
-
-        });
-
-
-    } catch (erro) {
-
-        console.log("");
-        console.log("==========================================");
-        console.log("❌ ERRO NA API");
-        console.log("==========================================");
-
-        console.log(erro);
-
-
-        res.status(500).json({
-
-            sucesso: false,
-
-            erro: erro.message
-
-        });
+        console.log("🔓 Bloqueio liberado após erro:");
+        console.log(chaveLead);
 
     }
+
+    res.status(500).json({
+
+        sucesso: false,
+
+        erro: erro.message
+
+    });
+
+}
 
 });
 
